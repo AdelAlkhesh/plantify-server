@@ -19,7 +19,7 @@ const MongoStore = require("connect-mongo");
 
 app.use(
   session({
-    secret: "SQU14TL3", //Ideally this will be in you env file
+    secret: process.env.SESSION_SECRET, //Ideally this will be in you env file
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -32,7 +32,8 @@ app.use(
     }),
   })
 );
-
+const path = require("path");
+app.use(express.static(path.join(__dirname, "public")));
 // 👇 Start handling routes here
 // Contrary to the views version, all routes are controlled from the routes/index.js
 const allRoutes = require("./routes");
@@ -44,9 +45,13 @@ app.use("/api", authRoutes);
 // const blogRoutes = require("./routes/blogs.routes");
 // app.use("/api",blogRoutes);
 
-
 const plantRoutes = require('./routes/plantFamily');
 app.use('/api', plantRoutes)
+
+app.use((req, res, next) => {
+  // If no routes match, send them the React HTML.
+  res.sendFile(__dirname + "/public/index.html");
+});
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);
 

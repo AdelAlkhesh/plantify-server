@@ -42,11 +42,11 @@ app.use("/api", allRoutes);
 const authRoutes = require("./routes/auth");
 app.use("/api", authRoutes);
 
-// const blogRoutes = require("./routes/blogs.routes");
-// app.use("/api",blogRoutes);
+const blogRoutes = require("./routes/blogs");
+app.use("/api", blogRoutes);
 
-const plantRoutes = require('./routes/plantFamily');
-app.use('/api', plantRoutes)
+const plantRoutes = require("./routes/plantFamily");
+app.use("/api", plantRoutes);
 
 app.use((req, res, next) => {
   // If no routes match, send them the React HTML.

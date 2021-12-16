@@ -1,12 +1,14 @@
 const router = require("express").Router();
-const PlantFamilyModel = require("../models/PlantFamily.model");
+const BlogsModel = require("../models/Blogs.model");
 const UserModel = require("../models/User.model");
 const authRoutes = require("./auth");
 
-router.get("/plantFamily", async (req, res) => {
-  PlantFamilyModel.find()
-    .then((plants) => {
-      res.status(200).json(plants);
+router.get("/blogs", async (req, res) => {
+  BlogsModel.find()
+    
+    .then((blogs) => {
+      res.status(200).json(blogs);
+      
     })
     .catch((err) => {
       res.status(500).json({
@@ -16,25 +18,14 @@ router.get("/plantFamily", async (req, res) => {
     });
 });
 
-router.post("/plantFamily/add", (req, res) => {
-  const {
-    nickname,
-    price,
-    image,
-    details,
-    scientific_name,
-    care_routine,
-    date_bought,
-  } = req.body;
+router.post("/blogs/add", (req, res) => {
+  const { title, body, tags, image } = req.body;
 
-  PlantFamilyModel.create({
-    nickname,
-    price,
+  BlogsModel.create({
+    title,
+    body,
+    tags,
     image,
-    details,
-    scientific_name,
-    care_routine,
-    date_bought: new Date(date_bought),
     author: req.session.loggedInUser._id,
   })
     .then((response) => {
@@ -48,9 +39,17 @@ router.post("/plantFamily/add", (req, res) => {
     });
 });
 
-router.get("/plantFamily/:plantId", (req, res) => {
-  
-  PlantFamilyModel.findById(req.params.plantId)
+router.patch("/blogs/:blogId", (req, res) => {
+  const {blogId} = req.params
+  const { title, body, tags, image } = req.body;
+
+  BlogsModel.findByIdAndUpdate(blogId, {
+    title,
+    body,
+    tags,
+    image,
+    author: req.session.loggedInUser._id,
+  }, {new:true})
     .then((response) => {
       res.status(200).json(response);
     })
@@ -62,8 +61,23 @@ router.get("/plantFamily/:plantId", (req, res) => {
     });
 });
 
-router.delete("/plantFamily/:plantId", (req, res) => {
-  PlantFamilyModel.findByIdAndDelete(req.params.id)
+
+
+router.get("/blogs/:blogId", (req, res) => {
+  BlogsModel.findById(req.params.blogId)
+    .then((response) => {
+      res.status(200).json(response);
+    })
+    .catch((err) => {
+      res.status(500).json({
+        error: "Something went wrong",
+        message: err,
+      });
+    });
+});
+
+router.delete("/blogs/:blogId", (req, res) => {
+  BlogsModel.finddByIdAndDelete(req.params.blogId)
     .then((response) => {
       res.status(200).json(response);
     })
@@ -77,30 +91,5 @@ router.delete("/plantFamily/:plantId", (req, res) => {
 
 
 
-router.patch("/plantFamily/:plantId", (req, res) => {
-  const { plantId } = req.params;
-  const { nickname, scientific_name, price, details } = req.body;
-
-  PlantFamilyModel.findByIdAndUpdate(
-    plantId,
-    {
-      nickname,
-      scientific_name,
-      details,
-      price,
-      author: req.session.loggedInUser._id,
-    },
-    { new: true }
-  )
-    .then((response) => {
-      res.status(200).json(response);
-    })
-    .catch((err) => {
-      res.status(500).json({
-        error: "Something went wrong",
-        message: err,
-      });
-    });
-});
 
 module.exports = router;
